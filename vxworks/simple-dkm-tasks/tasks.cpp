@@ -126,4 +126,18 @@ void start(void) {
   taskActivate(task0_id);
   taskActivate(task1_id);
   taskActivate(task2_id);
+
+  for (int i = 0; i < 4; i++)
+  {
+    semGive(task_sem);
+    taskDelay(50);
+  }
+
+  taskDelete(task0_id);
+  taskDelete(task1_id);
+  taskDelete(task2_id);
+
+  semDelete(task_sem);
+
+  printf("\n\n\nDONE\n\n\n");
 }
