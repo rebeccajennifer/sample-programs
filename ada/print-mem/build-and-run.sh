@@ -2,7 +2,7 @@
 #_______________________________________________________________________
 # Minimal script to build and run Ada program
 #_______________________________________________________________________
-gnatmake driver.adb -o a.out
+gnatmake test_debug.adb -o a.out
 
 rm *ali
 rm *.o
