@@ -15,13 +15,14 @@ echo " BUILD PROJECT"
 echo "________________________________________________________________"
 echo ""
 
-
-
 gnatmake -c pkg_test
 g++      -c cpp_main.cpp
 gnatbind -n pkg_test
 
 gnatlink pkg_test -o a.out --LINK=g++ -lstdc++ cpp_main.o
+
+# Remove build artifacts
+rm -f *.ali *.o
 
 echo "________________________________________________________________"
 echo " RUN EXECUTABLE"
