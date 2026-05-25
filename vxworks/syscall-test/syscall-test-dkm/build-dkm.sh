@@ -7,11 +7,6 @@ export FUN='./fun'
 export SYSCALLS='./syscalls'
 export COMMON='../syscall-test-common'
 
-
-KRNL=$WIND_HOME/vxsdk/sysroot/krnl/h/public
-#
-#wr-cc -c $SYSCALLS/syscall-kernel.cpp -I$FUN -I$COMMON -v
-
 wr-cc -c $FUN/some-kernel-fun.cpp \
 -I$FUN                            \
 -I$COMMON                         \
@@ -22,12 +17,10 @@ wr-cc -dkm -c $SYSCALLS/syscall-kernel.cpp \
 -I$COMMON                             \
 -o syscall-kernel.o
 
-#wr-cc                     \
-#-rtp  rtp.c               \
-#some-alg.o                \
-#syscall-user.o            \
-#-static                   \
-#-I$ALG                    \
-#-I$COMMON                 \
-#-o syscall-test-dkm.out
+wr-cc                     \
+-dkm  dkm.c               \
+syscall-kernel.o          \
+-I$SYSCALLS               \
+-I$COMMON                 \
+-o syscall-test-dkm.out
 

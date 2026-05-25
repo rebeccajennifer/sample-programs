@@ -3,8 +3,11 @@
 
 #include <ioLib.h>
 #include <rtpLib.h>
-#include <stdio.h>
 #include <syslog.h>
+#include <errnoLib.h>
+
+#include <stdio.h>
+
 
 #include "vxWorks.h"
 
@@ -15,17 +18,19 @@
 void start(void)
 {
 
+   char cwd[1024];
+   ioDefPathGet(cwd);
+   printf("\ncwd: %s\n", cwd);
+
   // Update this path to the correct path to the built vxe
   const char *rtp_path =
-    "/host.dcsg472"
-    "/home/z1165736/git/gensoft-examples"
-    "/proj/apps/vxsim-rtp-examples/syscall-example/syscall-test-rtp"
-    "/vsb-vxsim-22_09_SIMLINUXllvm_LP64_ld"
-    "/syscall-test-rtp/Debug/syscall-test-rtp.vxe";
+    "/host.host"
+    "/git/sample-programs/vxworks/syscall-test"
+    "/syscall-test-rtp/syscall-test-rtp.vxe";
 
   register_syscall_group();
 
-  int rtp_id;
+  RTP_ID rtp_id;
 
   rtp_id = rtpSpawn
   ( rtp_path
