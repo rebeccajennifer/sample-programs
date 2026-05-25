@@ -18,7 +18,7 @@
 //     )
 //______________________________________________________________________
 static SYSCALL_RTN_TBL_ENTRY syscall_table[SYSCALL_COUNT] =
-{ SYSCALL_DESC_ENTRY(the_syscall_handler, "the_syscall", 2)
+{ SYSCALL_DESC_ENTRY(the_syscall_handler, (char*)"the_syscall", 2)
 };
 
 
@@ -28,7 +28,7 @@ STATUS register_syscall_group()
   if (
     syscallGroupRegister
     ( GROUP0
-    , "syscall_group_0"
+    , (char*)"syscall_group_0"
     , SYSCALL_COUNT
     , syscall_table
     , true
@@ -103,7 +103,7 @@ STATUS register_rtp_syscalls()
   if
   ( syscallGroupRegister
     ( GROUP0
-    , "group_0_name"
+    , (char*)"group_0_name"
     , SYSCALL_COUNT
     , syscall_table
     , TRUE
