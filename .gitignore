@@ -1,5 +1,11 @@
-# Object file
+# Build artifacts
 *.o
-
-# Ada Library Information
 *.ali
+*.out
+*.vxe
+
+# Temporary files
+*.swp
+*.bak
+
+
