@@ -1,0 +1,477 @@
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-common/syscall-types.h       
+#ifndef SYSCALL_TYPES_H
+#define SYSCALL_TYPES_H
+//______________________________________________________________________
+// Enumeration for syscall numbers
+//______________________________________________________________________
+enum SYSCALL_NUMS
+{ THE_SYSCALL_NUM
+, SYSCALL_COUNT
+};
+
+enum SYSCALL_GROUPS
+{ GROUP0
+, GROUP_COUNT
+};
+
+//______________________________________________________________________
+// Types used in syscall
+//______________________________________________________________________
+typedef struct{ double in_dbl_var;
+  char   in_chr_var;
+} SYSCALL_IN_DATA_TYPE;
+
+typedef struct
+{ double out_dbl_var;
+  char   out_chr_var;
+} SYSCALL_OUT_DATA_TYPE;
+
+
+#endif
+
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-dkm/dkm.c                    
+#include <ioLib.h>
+#include <rtpLib.h>
+#include <stdio.h>
+#include <syslog.h>
+
+#include "vxWorks.h"
+
+#include "syscall-kernel.h"
+
+
+//______________________________________________________________________
+void start(void)
+{
+
+  // Update this path to the correct path to the built vxe
+  const char *rtp_path =
+    "/host.dcsg472"
+    "/home/z1165736/git/gensoft-examples"
+    "/proj/apps/vxsim-rtp-examples/syscall-example/syscall-test-rtp"
+    "/vsb-vxsim-22_09_SIMLINUXllvm_LP64_ld"
+    "/syscall-test-rtp/Debug/syscall-test-rtp.vxe";
+
+  register_syscall_group();
+
+  int rtp_id;
+
+  rtp_id = rtpSpawn
+  ( rtp_path
+  , 0
+  , 0
+  , 1
+  , 100
+  , 0
+  , 0
+  );
+
+  if (rtp_id == ERROR)
+    syslog
+    ( LOG_USER
+    , "\n Unable to launch RTP :("
+      "\n Error: %d"
+      "\n"
+    , errnoGet()
+    );
+
+  else
+    syslog
+    ( LOG_USER
+    , "\n RTP launched! :D"
+      "\n"
+    );
+}
+
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-dkm/fun/some-kernel-fun.cpp  
+#include <stdio.h>
+#include <syslog.h>
+
+#include "some-kernel-fun.h"
+
+//______________________________________________________________________
+// Function called by the syscall handler
+//______________________________________________________________________
+void handler_callee
+( SYSCALL_IN_DATA_TYPE*  in_data
+, SYSCALL_OUT_DATA_TYPE* out_data
+)
+{
+  out_data->out_dbl_var = in_data->in_dbl_var * 2;
+  out_data->out_chr_var = in_data->in_chr_var * 2;
+
+  syslog
+  ( LOG_USER
+  , "\n================================================"
+    "\n DKM: handler_callee"
+    "\n"
+    "\n After operation"
+    "\n================================================"
+    "\n out_data->out_dbl_var: %lf"
+    "\n out_data->out_chr_var: 0x%02x"
+    "\n================================================"
+    "\n"
+  , out_data->out_chr_var
+  , out_data->out_dbl_var
+  );
+
+}
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-dkm/fun/some-kernel-fun.h    
+#ifndef SOME_KERNEL_FUN
+#define SOME_KERNEL_FUN
+
+#include "syscall-types.h"
+
+// Called from syscall handler
+void handler_callee
+( SYSCALL_IN_DATA_TYPE*  in_data
+, SYSCALL_OUT_DATA_TYPE* out_data
+);
+
+#endif
+
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-dkm/syscalls/syscall-kernel.cpp
+#include <syslog.h>
+#include "syscall-kernel.h"
+#include "syscall-types.h"
+#include "some-kernel-fun.h"
+
+
+//______________________________________________________________________
+// From API reference
+//______________________________________________________________________
+// SYSCALL_DESC_ENTRY
+//     (
+//     syscallRoutine,   /* function pointer to system call handler */
+//     syscallName,      /* system call name */
+//     numArgs           /* number of arguments to syscallRoutine */
+//     )
+//______________________________________________________________________
+static SYSCALL_RTN_TBL_ENTRY syscall_table[SYSCALL_COUNT] =
+{ SYSCALL_DESC_ENTRY(the_syscall_handler, "the_syscall", 2)
+};
+
+
+//______________________________________________________________________
+STATUS register_syscall_group()
+{
+  if (
+    syscallGroupRegister
+    ( GROUP0
+    , "syscall_group_0"
+    , SYSCALL_COUNT
+    , syscall_table
+    , true
+    ) == ERROR
+  )
+  {
+    syslog(LOG_USER, "\n ERROR registering syscall group.\n");
+    return ERROR;
+  }
+  else
+  {
+    syslog(LOG_USER, "\n SUCCESS! Syscall group registered.\n");
+    return ERROR;
+  }
+}
+
+
+//______________________________________________________________________
+STATUS the_syscall_handler(syscall_args* args)
+{
+  syslog
+  ( LOG_USER
+  , "\n------------------------------------------------"
+    "\n DKM: the_syscall_handler"
+    "\n"
+    "\n Before handler callee"
+    "\n------------------------------------------------"
+    "\n in_data->in_dbl_var: %lf"
+    "\n in_data->in_chr_var: 0x%02x"
+    "\n------------------------------------------------"
+    "\n"
+  , args->in_data->in_chr_var
+  , args->in_data->in_dbl_var
+  );
+
+  handler_callee(args->in_data, args->out_data);
+
+  syslog
+  ( LOG_USER
+  , "\n------------------------------------------------"
+    "\n DKM: the_syscall_handler"
+    "\n"
+    "\n After handler callee"
+    "\n------------------------------------------------"
+    "\n out_data->out_dbl_var: %lf"
+    "\n out_data->out_chr_var: 0x%02x"
+    "\n------------------------------------------------"
+    "\n"
+  , args->out_data->out_chr_var
+  , args->out_data->out_dbl_var
+  );
+
+  return OK;
+}
+
+
+//______________________________________________________________________
+// From API reference
+//______________________________________________________________________
+// STATUS syscallGroupRegister
+//     (
+//     int                     groupNum,      /* group number */
+//     char *                  groupName,     /* group name   */
+//     int                     numRoutines,   /* number of system call routines */
+//     SYSCALL_RTN_TBL_ENTRY * pRoutineTbl,   /* system call routine table address */
+//     BOOL                    force          /* forcibly overwrite an existing */
+//                                            /* entry helps when debugging */
+//     )
+//______________________________________________________________________
+STATUS register_rtp_syscalls()
+{
+  if
+  ( syscallGroupRegister
+    ( GROUP0
+    , "group_0_name"
+    , SYSCALL_COUNT
+    , syscall_table
+    , TRUE
+    ) == ERROR
+  )
+  {
+    syslog(LOG_USER, "\nError registering RTP syscalls\n");
+    return ERROR;
+  }
+
+  else
+    return OK;
+}
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-dkm/syscalls/syscall-kernel.h
+#ifndef SYSCALL_KERNEL_H
+#define SYSCALL_KERNEL_H
+
+#include <syscallLib.h>
+#include "syscall-types.h"
+
+typedef struct
+{ SYSCALL_IN_DATA_TYPE*  in_data;
+  SYSCALL_OUT_DATA_TYPE* out_data;
+} syscall_args;
+
+//______________________________________________________________________
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+STATUS register_syscall_group();
+
+#ifdef __cplusplus
+}
+#endif
+//______________________________________________________________________
+
+STATUS the_syscall_handler(syscall_args* args);
+
+#endif
+
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-rtp/algs/some-alg.cpp        
+#include <syslog.h>
+#include "some-alg.h"
+
+//______________________________________________________________________
+// Forward declaration of the syscall
+//______________________________________________________________________
+void the_syscall
+( SYSCALL_IN_DATA_TYPE* in_data
+, SYSCALL_OUT_DATA_TYPE* out_data
+);
+
+
+//______________________________________________________________________
+void the_function_that_calls()
+{
+  SYSCALL_IN_DATA_TYPE  in_data;
+  SYSCALL_OUT_DATA_TYPE out_data;
+
+  in_data.in_dbl_var = 1.5;
+  in_data.in_chr_var = 0x08;
+
+  syslog
+  ( LOG_USER
+  , "\n================================================"
+    "\n RTP: the_function_that_calls"
+    "\n"
+    "\n Before the_syscall"
+    "\n================================================"
+    "\n in_data.in_chr_var: 0x%02x"
+    "\n in_data.in_dbl_var: %lf"
+    "\n================================================"
+    "\n"
+  , in_data.in_chr_var
+  , in_data.in_dbl_var
+  );
+
+  the_syscall(&in_data, &out_data);
+
+  syslog
+  ( LOG_USER
+  , "\n================================================"
+    "\n RTP: the_function_that_calls"
+    "\n"
+    "\n After the_syscall"
+    "\n================================================"
+    "\n out_data.out_chr_var: 0x%02x"
+    "\n out_data.out_dbl_var: %lf"
+    "\n================================================"
+    "\n"
+  , out_data.out_chr_var
+  , out_data.out_dbl_var
+  );
+
+  return;
+}
+
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-rtp/algs/some-alg.h          
+#ifndef SOME_ALG_H
+#define SOME_ALG_H
+
+#include "syscall-types.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+  #endif
+//______________________________________________________________________
+// Forward declaration of the function that makes the syscall
+//______________________________________________________________________
+void the_function_that_calls();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-rtp/rtp.c                    
+#include <syslog.h>
+#include "some-alg.h"
+
+
+
+int main (int argc, char * argv[])
+{
+  syslog
+  ( LOG_USER
+  , "\n________________________________________________"
+    "\n Starting RTP for System Call Example"
+    "\n________________________________________________"
+    "\n"
+  );
+
+  the_function_that_calls();
+
+  return 0;
+}
+
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-rtp/syscalls/syscall-user.cpp
+#include <vxWorks.h>
+#include <syscall.h>
+#include <syslog.h>
+
+#include "syscall-types.h"
+#include "syscall-user.h"
+
+
+//______________________________________________________________________
+void the_syscall
+( SYSCALL_IN_DATA_TYPE*  in_data
+, SYSCALL_OUT_DATA_TYPE* out_data
+)
+{
+  syslog
+  ( LOG_USER
+  , "\n________________________________________________"
+    "\n RTP: the_syscall"
+    "\n"
+    "\n Before the syscall"
+    "\n________________________________________________"
+    "\n in_data->in_chr_var: 0x%02x"
+    "\n in_data->in_dbl_var: %lf"
+    "\n________________________________________________"
+    "\n"
+  , in_data->in_chr_var
+  , in_data->in_dbl_var
+  );
+
+  STATUS ret_val;
+
+  ret_val = syscall
+    ( (_Vx_usr_arg_t) in_data
+    , (_Vx_usr_arg_t) out_data
+    , 0, 0, 0, 0, 0, 0
+    , SYSCALL_NUMBER(GROUP0, THE_SYSCALL_NUM)
+    );
+
+  syslog
+  ( LOG_USER
+  , "\n________________________________________________"
+    "\n RTP: the_syscall"
+    "\n"
+    "\n After the syscall"
+    "\n________________________________________________"
+    "\n out_data->out_chr_var: 0x%02x"
+    "\n out_data->out_dbl_var: %lf"
+    "\n________________________________________________"
+    "\n"
+  , out_data->out_chr_var
+  , out_data->out_dbl_var
+  );
+}
+
+//______________________________________________________________________
+//______________________________________________________________________
+// syscall-test-rtp/syscalls/syscall-user.h  
+#ifndef SYSCALL_USER_H
+#define SYSCALL_USER_H
+
+#include "syscall-types.h"
+
+
+void the_syscall
+( SYSCALL_IN_DATA_TYPE*  in_data
+, SYSCALL_OUT_DATA_TYPE* out_data
+);
+
+#endif
+
+
