@@ -7,20 +7,30 @@ export FUN='./fun'
 export SYSCALLS='./syscalls'
 export COMMON='../syscall-test-common'
 
-wr-cc -c $FUN/some-kernel-fun.cpp \
--I$FUN                            \
--I$COMMON                         \
+rm -f *.o
+rm -f *.out
+
+wr-cc -dkm -c                 \
+$FUN/some-kernel-fun.cpp      \
+-I$FUN                        \
+-I$COMMON                     \
 -o some-kernel-fun.o
 
-wr-cc -dkm -c $SYSCALLS/syscall-kernel.cpp \
--I$FUN                                \
--I$COMMON                             \
+wr-cc -dkm -c                 \
+$SYSCALLS/syscall-kernel.cpp  \
+-I$FUN                        \
+-I$COMMON                     \
 -o syscall-kernel.o
 
-wr-cc                     \
--dkm  dkm.c               \
-syscall-kernel.o          \
--I$SYSCALLS               \
--I$COMMON                 \
+wr-cc -dkm -c                 \
+dkm.cpp                       \
+-I$SYSCALLS                   \
+-I$COMMON                     \
+-o dkm.o
+
+wr-cc -dkm                    \
+some-kernel-fun.o             \
+syscall-kernel.o              \
+dkm.o                         \
 -o syscall-test-dkm.out
 

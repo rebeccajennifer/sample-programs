@@ -42,7 +42,7 @@ void start(void)
   , 0
   );
 
-  if (rtp_id == ERROR)
+  if (rtp_id == RTP_ID_ERROR)
     syslog
     ( LOG_USER
     , "\n Unable to launch RTP :("
