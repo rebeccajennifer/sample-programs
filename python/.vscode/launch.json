@@ -1,0 +1,26 @@
+{ "version":        "0.2.0"
+
+, "configurations":
+  [ { "name"    : "sample py debug"
+    , "type"    : "debugpy"
+    , "request" : "launch"
+    , "program" : "${workspaceFolder}/arg_test.py"
+    , "console" : "integratedTerminal"
+    , "args"    :
+      [ "--in0", "42"
+      , "-i1"  , "3.14"
+      ]
+    }
+
+  , { "name"    : "alternate input sample py"
+    , "type"    : "debugpy"
+    , "request" : "launch"
+    , "program" : "${workspaceFolder}/arg_test.py"
+    , "console" : "integratedTerminal"
+    , "args"    :
+      [ "--in0", "64"
+      , "--in1", "4096"
+      ]
+    }
+  ]
+}
