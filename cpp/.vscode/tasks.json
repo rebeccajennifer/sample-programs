@@ -1,0 +1,32 @@
+{ "version": "2.0.0"
+, "tasks":
+  [
+    { "label"   : "compile-hello-debug"
+    , "type"    : "shell"
+    , "command" : "g++"
+    , "args"    :
+      [ "${workspaceFolder}/hello/hello.cpp"
+      , "-g"
+      , "-o"
+      , "${workspaceFolder}/hello/hello.out"
+      ]
+
+      // Close task terminal after execution
+    , "presentation"  :
+      { "close": true
+      }
+
+      // Disable error detection for task
+    , "problemMatcher": []
+    }
+
+  , { "label": "run-hello"
+    , "type": "shell"
+    , "command": "${workspaceFolder}/hello/hello.out"
+    , "dependsOn":
+      [ "compile-hello-debug"
+      ]
+    , "problemMatcher": []
+    }
+  ]
+}
