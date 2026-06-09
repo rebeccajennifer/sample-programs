@@ -5,14 +5,11 @@
 
 class SomeClass {
 
- private:
-
+private:
   int int_var_;
 
- public:
-
-  SomeClass(int some_int)
-  {
+public:
+  SomeClass(int some_int) {
     int_var_ = some_int;
     return;
   }
