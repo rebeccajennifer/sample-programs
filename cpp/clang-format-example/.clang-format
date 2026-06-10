@@ -1,44 +1,121 @@
+#_______________________________________________________________________
+# DESCRIPTION
+# This .clang-format file has been modified from the configuration file
+# generated with the following command.
+#
+# clang-format -style=LLVM -dump-config > .clang-format
+#
+# EXAMPLE USAGE
+# Include this file in your workspace. From the command line, run:
+#
+# clang-format -i *.c* *.h*
+#_______________________________________________________________________
 ---
 Language:        Cpp
 # BasedOnStyle:  LLVM
 AccessModifierOffset: -2
-AlignAfterOpenBracket: Align
+#_______________________________________________________________________
+# Align:
+#
+#   int foo(int a
+#           int b,
+#           int c)
+#_______________________________________________________________________
+# DontAlign:
+#
+#   void foo(
+#     int a
+#     int b,
+#     int c)
+#_______________________________________________________________________
+AlignAfterOpenBracket: DontAlign # Changed
 AlignArrayOfStructures: None
+
+#_______________________________________________________________________
+# AcrossEmptyLines: false
+#
+# Allow declarations to be grouped and lined up differently.
+#
+#   int a_;
+#   int b_cde_;
+#
+#   unsigned long int fg_;
+#   bool              hig_;
+#_______________________________________________________________________
+# AcrossEmptyLines: true
+#
+# All declarations lined up even across empty lines.
+#
+#   int               a_;
+#   int               b_cde_;
+#
+#   unsigned long int fg_;
+#   bool              hig_;
+#_______________________________________________________________________
+
+#_______________________________________________________________________
+#  int   a = 8;
+#  short b = 0xFF;
+#_______________________________________________________________________
 AlignConsecutiveAssignments:
-  Enabled:         false
+  Enabled:         true # Changed
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCompound:   false
   AlignFunctionPointers: false
   PadOperators:    true
+
+#_______________________________________________________________________
+#  int a_     : 3;
+#  int b_cde_ : 28;
+#_______________________________________________________________________
 AlignConsecutiveBitFields:
-  Enabled:         false
+  Enabled:         true # Changed
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCompound:   false
   AlignFunctionPointers: false
   PadOperators:    false
+
+#_______________________________________________________________________
+#   unsigned long int fg_;
+#   bool              hij_;
+#_______________________________________________________________________
 AlignConsecutiveDeclarations:
-  Enabled:         false
+  Enabled:         true # Changed
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCompound:   false
   AlignFunctionPointers: false
   PadOperators:    false
+
+#_______________________________________________________________________
+# #define FOO        123
+# #define FLUX_BUNNY 456
+#_______________________________________________________________________
 AlignConsecutiveMacros:
-  Enabled:         false
+  Enabled:         true # Changed
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCompound:   false
   AlignFunctionPointers: false
   PadOperators:    false
+
 AlignConsecutiveShortCaseStatements:
   Enabled:         false
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCaseColons: false
+
 AlignEscapedNewlines: Right
 AlignOperands:   Align
+
+#_____________________________________________________________________
+# Always:
+#
+# printf("fun"); // Test comment
+# return;        // Test comment
+#_____________________________________________________________________
 AlignTrailingComments:
   Kind:            Always
   OverEmptyLines:  0
@@ -87,17 +164,68 @@ BreakAfterJavaFieldAnnotations: false
 BreakArrays:     true
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: Always
-BreakBeforeBraces: Attach
+
+#_______________________________________________________________________
+# Attach:
+#
+# void fun() {
+#   /**/
+# }
+#_______________________________________________________________________
+# Allman:
+#
+# void fun()
+# {
+#   /**/
+# }
+BreakBeforeBraces: Allman
+
 BreakBeforeInlineASMColon: OnlyMultiline
 BreakBeforeTernaryOperators: true
-BreakConstructorInitializers: BeforeColon
+
+#_______________________________________________________________________
+# BeforeComma:
+#
+# SomeClass::SomeClass()
+#   : int_var_(42)
+#   , dbl_var_(3.14)
+#   , long_int_(0xaaaaaaaabbbbbbbb)
+#   , short_var_(0xFF)
+#   , bool_var_(true) {}
+#_______________________________________________________________________
+# BeforeColon:
+#
+# SomeClass::SomeClass()
+#   : int_var_(42), dbl_var_(3.14), long_int_(0xaaaaaaaabbbbbbbb),
+#     short_var_(0xFF), bool_var_(true) {}
+#_______________________________________________________________________
+BreakConstructorInitializers: BeforeComma # Changed
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
-ColumnLimit:     80
+ColumnLimit:     72 # Changed
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
-ConstructorInitializerIndentWidth: 4
-ContinuationIndentWidth: 4
+
+#_______________________________________________________________________
+# Indent of variables in initializer list. E.g. 8:
+#
+#   SomeClass::SomeClass()
+#           : int_var_(42)
+#           , dbl_var_(3.14)
+#           , long_int_(0xaaaaaaaabbbbbbbb)
+#           , short_var_(0xFF)
+#           , bool_var_(true) {}
+#_______________________________________________________________________
+ConstructorInitializerIndentWidth: 2 # Changed
+
+#_______________________________________________________________________
+# Indent of second line of input parameters
+#
+#   void fun(int* foo, double bar, unsigned long int trevor,
+#     unsigned long long int duke) {
+#_______________________________________________________________________
+ContinuationIndentWidth: 2 # Changed
+
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 DisableFormat:   false
@@ -111,20 +239,46 @@ ForEachMacros:
   - BOOST_FOREACH
 IfMacros:
   - KJ_IF_MAYBE
-IncludeBlocks:   Preserve
+
+#_______________________________________________________________________
+# Preserve:
+# Do not group include blocks
+#
+# Regroup:
+# Groups include blocks according to category
+#_______________________________________________________________________
+IncludeBlocks:   Regroup # Changed
+
 IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
-    Priority:        2
-    SortPriority:    0
-    CaseSensitive:   false
-  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
-    Priority:        3
-    SortPriority:    0
-    CaseSensitive:   false
-  - Regex:           '.*'
+
+  # Header file for current file
+  - Regex:           '^".*\.h*"'
     Priority:        1
     SortPriority:    0
     CaseSensitive:   false
+
+  # Includes with <>
+  - Regex:           '^<.*>$' # Added
+    Priority:        2
+    SortPriority:    0
+    CaseSensitive:   false
+
+
+  - Regex:           '.*'
+    Priority:        3
+    SortPriority:    0
+    CaseSensitive:   false
+
+#  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+#    Priority:        2
+#    SortPriority:    0
+#    CaseSensitive:   false
+
+#  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+#    Priority:        3
+#    SortPriority:    0
+#    CaseSensitive:   false
+
 IncludeIsMainRegex: '(Test)?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
@@ -132,7 +286,25 @@ IndentCaseBlocks: false
 IndentCaseLabels: false
 IndentExternBlock: AfterExternBlock
 IndentGotoLabels: true
-IndentPPDirectives: None
+
+#_______________________________________________________________________
+# None:
+#
+# #ifdef FOO
+# #include <vector>
+# #define RABBIT
+# #endif
+
+#_______________________________________________________________________
+# AfterHash:
+#
+# #ifdef FOO
+# #  include <vector>
+# #  define RABBIT
+# #endif
+#_______________________________________________________________________
+IndentPPDirectives: AfterHash
+
 IndentRequiresClause: true
 IndentWidth:     2
 IndentWrappedFunctionNames: false
@@ -162,6 +334,7 @@ ObjCBreakBeforeNestedBlockParam: true
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PackConstructorInitializers: BinPack
+
 PenaltyBreakAssignment: 2
 PenaltyBreakBeforeFirstCallParameter: 19
 PenaltyBreakComment: 300
@@ -173,7 +346,10 @@ PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
 PenaltyIndentedWhitespace: 0
 PenaltyReturnTypeOnItsOwnLine: 60
-PointerAlignment: Right
+
+#_______________________________________________________________________
+# Left: int* foo; Right: int *foo
+PointerAlignment: Left # Changed
 PPIndentWidth:   -1
 QualifierAlignment: Leave
 ReferenceAlignment: Pointer
@@ -199,7 +375,14 @@ SpaceBeforeCpp11BracedList: false
 SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeJsonColon: false
+
+#_______________________________________________________________________
+# ControlStatements:
+#
+#   if (a>0)
+#_______________________________________________________________________
 SpaceBeforeParens: ControlStatements
+
 SpaceBeforeParensOptions:
   AfterControlStatements: true
   AfterForeachMacros: true
