@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "PRE_COMMIT GIT HOOK"
+files=$(git diff --cached --name-only --diff-filter=ACMR \
+    | grep '^cpp/clang-format-example/' \
+    | grep -E '\.(c|cc|cpp|cxx|h|hh|hpp)$')
+
+[ -z "$files" ] && exit 0
+
+for file in $files; do
+    clang-format -i "$file"
+    git add "$file"
+done
