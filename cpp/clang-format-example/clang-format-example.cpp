@@ -47,8 +47,10 @@ void fun(int* foo, double bar, unsigned long int trevor,
   unsigned long long int duke)
 {
 
-  int   a = 8;
-  short b = 0xFF;
+  int    a  = 8;
+  short  b  = 0xFF;
+  double pi = 3.14;
+
   printf("fun"); // Test comment
   return;        // Test comment
 }
