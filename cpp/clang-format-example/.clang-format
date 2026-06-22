@@ -251,15 +251,32 @@ IncludeBlocks:   Regroup # Changed
 
 IncludeCategories:
 
+  - Regex: '^"apple.h"$'
+    Priority: 2
+    SortPriority:    0
+
+  - Regex: '^"orange.h"$'
+    Priority: 1
+    SortPriority:    0
+
+  - Regex: '^"(a|b|c)\.h"$'
+    Priority: 3
+    SortPriority:    0
+
+  - Regex: '^"(foo|bar).h"$'
+    Priority: 4
+    SortPriority:    0
+
+
   # Header file for current file
   - Regex:           '^".*\.h*"'
-    Priority:        1
+    Priority:        5
     SortPriority:    0
     CaseSensitive:   false
 
   # Includes with <>
   - Regex:           '^<.*>$' # Added
-    Priority:        2
+    Priority:        9
     SortPriority:    0
     CaseSensitive:   false
 
